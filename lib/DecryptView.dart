@@ -9,9 +9,9 @@ import 'package:crypto/crypto.dart';
 import 'dart:io';
 import 'dart:convert';
 import 'package:desktop_drop/desktop_drop.dart';
-import 'package:cross_file/cross_file.dart';
+import 'package:file_crypto/utils/CryptUtil.dart';
 
-import 'package:file_crypto/utils/DirManager.dart' as dirMan;
+import 'package:file_crypto/utils/DirManager.dart';
 
 class DecryptView extends StatefulWidget {
   @override
@@ -21,10 +21,32 @@ class DecryptView extends StatefulWidget {
 class _DecryptViewState extends State<DecryptView> {
   Set<String> files = {};
   List<String> get fileList => files.toList();
+  ProgressDialog? pd;
+
+  int proc = 0;
+  Future<void> decryptAndSave(int idx, String password) async {
+    // 복호화
+    CryptUtil cryp = CryptUtil(password, false);
+    File f = File(fileList[idx]);
+
+    var mapper = (List<int> data) {
+      return cryp.processEnc(Uint8List.fromList(data));
+    };
+
+    var directoryManager = DirManager();
+    await directoryManager.createBlankFile(fileList[idx].split("/").last +".res");
+
+    Stream<List<int>> filtStream = await f.openRead();
+    Stream tr = filtStream.map(mapper);
+    await directoryManager.writeFileWithStream(tr);
+
+    proc++;
+    pd!.update(value: proc);
+  }
 
   @override
   Widget build(BuildContext context) {
-    ProgressDialog pd = ProgressDialog(context: context);;
+    pd = ProgressDialog(context: context);
     final pwEditController = TextEditingController();
 
     return Scaffold(
@@ -35,30 +57,22 @@ class _DecryptViewState extends State<DecryptView> {
             child: FloatingActionButton(
               child: Icon(Icons.lock_open_outlined),
               onPressed: () async {
-                const uniqueKey = "file_crypto";
                 if(files.isNotEmpty) {
-                  pd.show(max: files!.length, msg: "Decrypting...", progressType: ProgressType.valuable);
-                  var passwordString = utf8.encode(pwEditController.text + uniqueKey);
-                  var hash = sha256.convert(passwordString);
-                  var key = hash.toString().substring(0, 32);
-
-                  final iv = encrypt.IV.fromUtf8("XQnB2g7WijMpvN48");
-                  final encrypter = encrypt.Encrypter(encrypt.AES(encrypt.Key.fromUtf8(key), mode: encrypt.AESMode.cbc));
-                  int i = 1;
-                  for(String fl in files) {
-                    File f = File(fl);
-                    Uint8List s = await f.readAsBytes();
-                    encrypt.Encrypted es = encrypt.Encrypted(s);
-                    var dec = encrypter.decryptBytes(es, iv: iv);
-                    var spl = fl.split("/");
-                    String fileName = "dec_" + spl.last.substring(4);
-                    dirMan.DirManager().createFile(fileName, Uint8List.fromList(dec));
-
-                    pd.update(value: i);
+                  pd!.show(max: files!.length, msg: "Decrypting...", progressType: ProgressType.valuable);
+                  final task = <Future>[];
+                  int i = 0;
+                  for(var file in files) {
+                    task.add(decryptAndSave(i, pwEditController.text));
                     i++;
                   }
 
-                  FilePicker.platform.clearTemporaryFiles();
+                  proc = 0;
+                  await Future.wait(task);
+
+                  if(Platform.isAndroid) {
+                    FilePicker.platform.clearTemporaryFiles();
+                  }
+                  
                   setState(() {
                     files.clear();
                   });
@@ -92,7 +106,7 @@ class _DecryptViewState extends State<DecryptView> {
       body: DropTarget(
         onDragDone: (detail) async {
           if(detail != null && detail.files.isNotEmpty) {
-            String fileName = detail.files.first.name;
+            String fileName = detail.files.first.path;
             setState(() {
               files.add(fileName);
             });
@@ -115,12 +129,12 @@ class _DecryptViewState extends State<DecryptView> {
               ),
               Expanded(
                 child: ListView.builder(
-                    padding: const EdgeInsets.all(8),
-                    itemCount: files.length,
-                    itemBuilder: (BuildContext context, int index) {
-                      var txt = fileList[index].split("/");
-                      return Center(child: Text(txt.last));
-                    }
+                  padding: const EdgeInsets.all(8),
+                  itemCount: files.length,
+                  itemBuilder: (BuildContext context, int index) {
+                    var txt = fileList[index].split("/");
+                    return Center(child: Text(txt.last));
+                  }
                 ),
               )
             ]
