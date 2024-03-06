@@ -8,9 +8,9 @@ import 'package:sn_progress_dialog/sn_progress_dialog.dart';
 import 'package:file_crypto/utils/CryptUtil.dart';
 import 'package:desktop_drop/desktop_drop.dart';
 
-import 'package:aes_crypt_null_safe/aes_crypt_null_safe.dart';
-
 import 'package:file_crypto/utils/DirManager.dart';
+
+import 'package:flutter_foreground_task/flutter_foreground_task.dart';
 
 class EncryptView extends StatefulWidget {
   @override
@@ -25,7 +25,8 @@ class _EncryptViewState extends State<EncryptView> {
   int proc = 0;
   Future<void> encryptAndSave(int idx, String password) async {
     // 암호화
-    CryptUtil cryp = CryptUtil(password, true);
+    CryptUtil cryp = CryptUtil.Encrypter(password);
+    Uint8List iv = cryp.getIV();
     File f = File(fileList[idx]);
 
     var mapper = (List<int> data) {
@@ -33,7 +34,7 @@ class _EncryptViewState extends State<EncryptView> {
     };
 
     var directoryManager = DirManager();
-    await directoryManager.createBlankFile(fileList[idx].split("/").last +".chacha");
+    await directoryManager.createBlankFile(fileList[idx].split("/").last +".chacha", iv);
 
     Stream<List<int>> filtStream = await f.openRead();
     Stream tr = filtStream.map(mapper);
@@ -56,6 +57,10 @@ class _EncryptViewState extends State<EncryptView> {
               child: FloatingActionButton(
                   child: Icon(Icons.lock_outline),
                   onPressed: () async {
+                    if(Platform.isAndroid) {
+                      FlutterForegroundTask.startService(notificationTitle: "Encryption", notificationText: "Processing...");
+                    }
+
                     if(files.isNotEmpty) {
                       pd!.show(max: files!.length, msg: "Encrypting...", progressType: ProgressType.valuable);
                       final task = <Future>[];
@@ -70,6 +75,7 @@ class _EncryptViewState extends State<EncryptView> {
 
                       if(Platform.isAndroid) {
                         FilePicker.platform.clearTemporaryFiles();
+                        FlutterForegroundTask.stopService();
                       }
 
                       setState(() {

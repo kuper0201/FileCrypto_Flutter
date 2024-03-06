@@ -11,6 +11,8 @@ import 'dart:convert';
 import 'EncryptView.dart';
 import 'DecryptView.dart';
 
+import 'package:flutter_foreground_task/flutter_foreground_task.dart';
+
 /// This is the main application widget.
 class MyApp extends StatelessWidget {
   const MyApp({Key? key}) : super(key: key);
@@ -34,7 +36,38 @@ class HomeView extends StatefulWidget {
 }
  
 class _HomeViewState extends State<HomeView> {
- 
+  _HomeViewState() {
+    FlutterForegroundTask.init(
+      androidNotificationOptions: AndroidNotificationOptions(
+        channelId: 'foreground_service',
+        channelName: 'Foreground Service Notification',
+        channelDescription: 'This notification appears when the foreground service is running.',
+        channelImportance: NotificationChannelImportance.LOW,
+        priority: NotificationPriority.LOW,
+        iconData: const NotificationIconData(
+          resType: ResourceType.mipmap,
+          resPrefix: ResourcePrefix.ic,
+          name: 'launcher',
+        ),
+        buttons: [
+          const NotificationButton(id: 'sendButton', text: 'Send'),
+          const NotificationButton(id: 'testButton', text: 'Test'),
+        ],
+      ),
+      iosNotificationOptions: const IOSNotificationOptions(
+        showNotification: true,
+        playSound: false,
+      ),
+      foregroundTaskOptions: const ForegroundTaskOptions(
+        interval: 5000,
+        isOnceEvent: false,
+        autoRunOnBoot: true,
+        allowWakeLock: true,
+        allowWifiLock: true,
+      ),
+    );
+  }
+
   int _selectedIndex = 0;
   static const TextStyle optionStyle = TextStyle(
       fontSize: 30,
@@ -88,5 +121,4 @@ class _HomeViewState extends State<HomeView> {
   void dispose() {
     super.dispose();
   }
-    
 }

@@ -1,17 +1,14 @@
-import 'dart:isolate';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
-import 'package:encrypt/encrypt.dart' as encrypt;
 import 'package:file_picker/file_picker.dart';
 import 'package:sn_progress_dialog/sn_progress_dialog.dart';
-import 'package:crypto/crypto.dart';
 import 'dart:io';
-import 'dart:convert';
 import 'package:desktop_drop/desktop_drop.dart';
 import 'package:file_crypto/utils/CryptUtil.dart';
 
 import 'package:file_crypto/utils/DirManager.dart';
+import 'package:flutter_foreground_task/flutter_foreground_task.dart';
 
 class DecryptView extends StatefulWidget {
   @override
@@ -26,17 +23,27 @@ class _DecryptViewState extends State<DecryptView> {
   int proc = 0;
   Future<void> decryptAndSave(int idx, String password) async {
     // 복호화
-    CryptUtil cryp = CryptUtil(password, false);
     File f = File(fileList[idx]);
+    RandomAccessFile rf = await f.open(mode: FileMode.read);
+    Uint8List iv;
+    try {
+      List<int> bytes = await rf.read(8);
+      iv = Uint8List.fromList(bytes);
+    } finally {
+      await rf.close();
+    }
+
+    CryptUtil cryp = CryptUtil.Decrypter(password, iv);
 
     var mapper = (List<int> data) {
       return cryp.processEnc(Uint8List.fromList(data));
     };
 
     var directoryManager = DirManager();
-    await directoryManager.createBlankFile(fileList[idx].split("/").last +".res");
+    var decryptFileName = fileList[idx].split("/").last.replaceAll(".chacha", "");
+    await directoryManager.createBlankFile(decryptFileName, Uint8List(0));
 
-    Stream<List<int>> filtStream = await f.openRead();
+    Stream<List<int>> filtStream = await f.openRead(8);
     Stream tr = filtStream.map(mapper);
     await directoryManager.writeFileWithStream(tr);
 
@@ -57,6 +64,10 @@ class _DecryptViewState extends State<DecryptView> {
             child: FloatingActionButton(
               child: Icon(Icons.lock_open_outlined),
               onPressed: () async {
+                if(Platform.isAndroid) {
+                  FlutterForegroundTask.startService(notificationTitle: "Decryption", notificationText: "Processing...");
+                }
+
                 if(files.isNotEmpty) {
                   pd!.show(max: files!.length, msg: "Decrypting...", progressType: ProgressType.valuable);
                   final task = <Future>[];
@@ -71,6 +82,7 @@ class _DecryptViewState extends State<DecryptView> {
 
                   if(Platform.isAndroid) {
                     FilePicker.platform.clearTemporaryFiles();
+                    FlutterForegroundTask.stopService();
                   }
                   
                   setState(() {

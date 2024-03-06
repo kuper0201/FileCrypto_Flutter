@@ -1,23 +1,42 @@
 import 'dart:ffi';
 
 import 'package:crypto/crypto.dart';
-import 'package:encrypt/encrypt.dart';
 import 'package:file_crypto/utils/DirManager.dart';
 import 'dart:typed_data';
 import 'dart:convert';
 import 'dart:io';
+import 'dart:math';
 
 import 'package:pointycastle/export.dart';
 
 class CryptUtil {
   late ChaCha20Engine chacha20;
+  late String password;
+  late Uint8List iv;
 
-  CryptUtil(String password, bool isEnc) {
-    var key = KeyParameter(Uint8List.fromList("1111111111111111".codeUnits));
-    var iv = Uint8List.fromList("11111111".codeUnits);
+  CryptUtil.Encrypter(this.password) {
+    var key = KeyParameter(Uint8List.fromList(saltPassword(password).codeUnits));
+    iv = Uint8List.fromList(getRandString(8).codeUnits);
     var params = ParametersWithIV(key, iv);
     chacha20 = ChaCha20Engine();
-    chacha20.init(isEnc, params);
+    chacha20.init(true, params);
+  }
+
+  CryptUtil.Decrypter(this.password, this.iv) {
+    var key = KeyParameter(Uint8List.fromList(saltPassword(password).codeUnits));
+    var params = ParametersWithIV(key, iv);
+    chacha20 = ChaCha20Engine();
+    chacha20.init(false, params);
+  }
+
+  Uint8List getIV() {
+    return this.iv;
+  }
+
+  String getRandString(int len) {
+    var random = Random.secure();
+    var values = List<int>.generate(len, (i) =>  random.nextInt(255));
+    return base64UrlEncode(values).substring(0, len);
   }
 
   String saltPassword(String password) {
@@ -34,24 +53,5 @@ class CryptUtil {
 
   List<int> processEnc(Uint8List data) {
     return List<int>.from(chacha20.process(data));
-  }
-
-  List<int> encrypData(Uint8List file, String password) {
-    // String key = saltPassword(password);
-    //
-    // final encrypter = Encrypter(AES(Key.fromUtf8(key), mode: AESMode.cbc));
-    // Encrypted e = encrypter.encryptBytes(file, iv: iv);
-    // return e.bytes;
-
-    return "t".codeUnits;
-  }
-
-  List<int> decryptData(Uint8List encryptedFile, String password) {
-    // String key = saltPassword(password);
-    //
-    // final encrypter = Encrypter(AES(Key.fromUtf8(key), mode: AESMode.cbc));
-    // Encrypted es = Encrypted(encryptedFile);
-    // return encrypter.decryptBytes(es, iv: iv);
-    return [];
   }
 }

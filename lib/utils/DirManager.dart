@@ -6,14 +6,34 @@ import 'package:shared_storage/shared_storage.dart';
 
 class DirManager {
   DocumentFile? df;
-  Future<void> createBlankFile(String name) async {
-    Uri uri = await getURI();
-    df = await createFileAsBytes(uri, mimeType: "raw/content", displayName: name, bytes: Uint8List(0));
+  File? file;
+
+  Future<void> createBlankFile(String name, Uint8List iv) async {
+    if(Platform.isAndroid) {
+      Uri uri = await getURI();
+      df = await createFileAsBytes(uri, mimeType: "raw/content", displayName: name, bytes: iv);
+    } else {
+      await createDir();
+      final Directory dirPath = await getApplicationDocumentsDirectory();
+      Directory newDir = new Directory(dirPath.path + "/FileCrypto/");
+      file = File(newDir.path + "/" + name);
+      if (!await file!.exists()) {
+        await file!.create();
+      }
+
+      await file!.writeAsBytes(iv, mode: FileMode.append);
+    }
   }
 
   Future<void> writeFileWithStream(Stream stream) async {
-    await for(var item in stream) {
-      await writeToFileAsBytes(df!.uri, bytes: Uint8List.fromList(item), mode: FileMode.append);
+    if(Platform.isAndroid) {
+      await for (var item in stream) {
+        await writeToFileAsBytes(df!.uri, bytes: Uint8List.fromList(item), mode: FileMode.append);
+      }
+    } else {
+      await for(var item in stream) {
+        await file!.writeAsBytes(Uint8List.fromList(item), mode: FileMode.append);
+      }
     }
   }
 
@@ -27,27 +47,11 @@ class DirManager {
     return uris!.first.uri;
   }
 
-  void createDir() async {
+  Future<void> createDir() async {
     final Directory dirPath = await getApplicationDocumentsDirectory();
     Directory newDir = new Directory(dirPath.path + "/FileCrypto/");
     if (!await newDir.exists()) {
-      newDir.create();
-    }
-  }
-
-  void createFile(String fileName, Uint8List contents) async {
-    if (Platform.isAndroid) {
-      Uri uri = await getURI();
-      await createFileAsBytes(uri, mimeType: 'raw/content', displayName: fileName, bytes: contents);
-    } else {
-      createDir();
-      final Directory dirPath = await getApplicationDocumentsDirectory();
-      Directory newDir = new Directory(dirPath.path + "/FileCrypto/");
-      File newF = File(newDir.path + "/" + fileName);
-      if (!await newF.exists()) {
-        await newF.create();
-      }
-      await newF.writeAsBytes(contents);
+      await newDir.create();
     }
   }
 }
