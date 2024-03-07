@@ -21,6 +21,11 @@ class _EncryptViewState extends State<EncryptView> {
   ProgressDialog? pd;
   Set<String> files = {};
   List<String> get fileList => files.toList();
+  late DirManager directoryManager;
+
+  _EncryptViewState() {
+    directoryManager = DirManager();
+  }
 
   int proc = 0;
   Future<void> encryptAndSave(int idx, String password) async {
@@ -33,7 +38,6 @@ class _EncryptViewState extends State<EncryptView> {
       return cryp.processEnc(Uint8List.fromList(data));
     };
 
-    var directoryManager = DirManager();
     await directoryManager.createBlankFile(fileList[idx].split("/").last +".chacha", iv);
 
     Stream<List<int>> filtStream = await f.openRead();
@@ -59,6 +63,7 @@ class _EncryptViewState extends State<EncryptView> {
                   onPressed: () async {
                     if(Platform.isAndroid) {
                       FlutterForegroundTask.startService(notificationTitle: "Encryption", notificationText: "Processing...");
+                      await directoryManager.checkFirstUri();
                     }
 
                     if(files.isNotEmpty) {
@@ -138,7 +143,7 @@ class _EncryptViewState extends State<EncryptView> {
                           itemCount: files.length,
                           itemBuilder: (BuildContext context, int index){
                             var txt = fileList[index].split("/");
-                            return Center(child: Text(txt.last));
+                            return Center(child: Text(txt.last, style: TextStyle(fontSize: 28),));
                           }
                         ),
                       )

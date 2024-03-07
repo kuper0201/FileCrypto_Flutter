@@ -8,6 +8,25 @@ class DirManager {
   DocumentFile? df;
   File? file;
 
+  Future<void> checkFirstUri() async {
+    List<UriPermission>? uris = await persistedUriPermissions();
+
+    while (uris == null || uris.isEmpty) {
+      await openDocumentTree();
+      uris = await persistedUriPermissions();
+    }
+
+    bool? isDirExists = await exists(uris!.first.uri);
+    if(isDirExists == null || !isDirExists!) {
+      for(var uri in uris) {
+        await releasePersistableUriPermission(uri.uri);
+      }
+
+      await openDocumentTree();
+      uris = await persistedUriPermissions();
+    }
+  }
+
   Future<void> createBlankFile(String name, Uint8List iv) async {
     if(Platform.isAndroid) {
       Uri uri = await getURI();
@@ -39,6 +58,7 @@ class DirManager {
 
   Future<Uri> getURI() async {
     List<UriPermission>? uris = await persistedUriPermissions();
+
     while (uris == null || uris.isEmpty) {
       await openDocumentTree();
       uris = await persistedUriPermissions();
