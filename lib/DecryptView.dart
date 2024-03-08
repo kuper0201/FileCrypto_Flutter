@@ -57,7 +57,10 @@ class _DecryptViewState extends State<DecryptView> {
       await DirManager().checkFirstUri();
     }
 
-    pd!.show(max: files!.length, msg: "Decrypting...", progressType: ProgressType.valuable);
+    final brightness = MediaQuery.of(context).platformBrightness;
+    Color brMode = (brightness == Brightness.dark) ? Color.fromRGBO(46, 44, 54, 1.0) : Color.fromRGBO(237, 232, 243, 1.0);
+    Color msgMode = (brightness == Brightness.dark) ? Color.fromRGBO(255, 255, 255, 1.0) : Color.fromRGBO(0, 0, 0, 1.0);
+    pd!.show(max: files!.length, msg: "Decrypting...", progressType: ProgressType.valuable, backgroundColor: brMode, msgColor: msgMode);
     final task = <Future>[];
     int i = 0;
     for(var file in files) {
@@ -118,7 +121,12 @@ class _DecryptViewState extends State<DecryptView> {
               tooltip: "Add File",
               child: Icon(Icons.add),
               onPressed: () async {
+                final brightness = MediaQuery.of(context).platformBrightness;
+                Color brMode = (brightness == Brightness.dark) ? Color.fromRGBO(46, 44, 54, 1.0) : Color.fromRGBO(237, 232, 243, 1.0);
+                Color msgMode = (brightness == Brightness.dark) ? Color.fromRGBO(255, 255, 255, 1.0) : Color.fromRGBO(0, 0, 0, 1.0);
+                pd!.show(msg: "Loading...", progressType: ProgressType.normal, backgroundColor: brMode, msgColor: msgMode);
                 FilePickerResult? f = await FilePicker.platform.pickFiles(allowMultiple: true);
+                pd!.close();
                 if(f != null) {
                   for (var fl in f.files!) {
                     setState(() {
