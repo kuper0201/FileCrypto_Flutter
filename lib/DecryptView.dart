@@ -19,11 +19,6 @@ class _DecryptViewState extends State<DecryptView> {
   Set<String> files = {};
   List<String> get fileList => files.toList();
   ProgressDialog? pd;
-  late DirManager directoryManager;
-
-  _DecryptViewState() {
-    directoryManager = DirManager();
-  }
 
   int proc = 0;
   Future<void> decryptAndSave(int idx, String password) async {
@@ -71,7 +66,7 @@ class _DecryptViewState extends State<DecryptView> {
               onPressed: () async {
                 if(Platform.isAndroid) {
                   FlutterForegroundTask.startService(notificationTitle: "Decryption", notificationText: "Processing...");
-                  await directoryManager.checkFirstUri();
+                  await DirManager().checkFirstUri();
                 }
 
                 if(files.isNotEmpty) {
