@@ -51,6 +51,33 @@ class _DecryptViewState extends State<DecryptView> {
     pd!.update(value: proc);
   }
 
+  void performDec(String password) async {
+    if(Platform.isAndroid) {
+      FlutterForegroundTask.startService(notificationTitle: "Decryption", notificationText: "Processing...");
+      await DirManager().checkFirstUri();
+    }
+
+    pd!.show(max: files!.length, msg: "Decrypting...", progressType: ProgressType.valuable);
+    final task = <Future>[];
+    int i = 0;
+    for(var file in files) {
+      task.add(decryptAndSave(i, password));
+      i++;
+    }
+
+    proc = 0;
+    await Future.wait(task);
+
+    if(Platform.isAndroid) {
+      FilePicker.platform.clearTemporaryFiles();
+      FlutterForegroundTask.stopService();
+    }
+
+    setState(() {
+      files.clear();
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     pd = ProgressDialog(context: context);
@@ -65,33 +92,21 @@ class _DecryptViewState extends State<DecryptView> {
               child: Icon(Icons.lock_open_outlined),
               onPressed: () async {
                 if(files.isNotEmpty) {
-                  if(Platform.isAndroid) {
-                    FlutterForegroundTask.startService(notificationTitle: "Decryption", notificationText: "Processing...");
-                    await DirManager().checkFirstUri();
-                  }
-
-                  pd!.show(max: files!.length, msg: "Decrypting...", progressType: ProgressType.valuable);
-                  final task = <Future>[];
-                  int i = 0;
-                  for(var file in files) {
-                    task.add(decryptAndSave(i, pwEditController.text));
-                    i++;
-                  }
-
-                  proc = 0;
-                  await Future.wait(task);
-
-                  if(Platform.isAndroid) {
-                    FilePicker.platform.clearTemporaryFiles();
-                    FlutterForegroundTask.stopService();
-                  }
-                  
-                  setState(() {
-                    files.clear();
+                  showDialog(context: context, barrierDismissible: false, builder: (context) {
+                    return AlertDialog(
+                      title: Text("Input password"),
+                      content: TextField(controller: pwEditController, autofocus: true, obscureText: true, decoration: InputDecoration(hintText: "Password for Decrypt"), onSubmitted: (value) {Navigator.pop(context); performDec(pwEditController.text);},),
+                      actions: [
+                        TextButton(onPressed: () { Navigator.pop(context); pwEditController.text = ''; }, child: Text("Cancel")),
+                        TextButton(onPressed: () { Navigator.pop(context); performDec(pwEditController.text); }, child: Text("Decrypt!"))
+                      ],
+                    );
                   });
                 } else {
-                  showDialog(context: context, builder: (context) {
-                    return AlertDialog(title: Text("Failed"), content: Text("Please select some files"));;
+                  showDialog(context: context, barrierDismissible: false, builder: (context) {
+                    return AlertDialog(title: Text("Failed"), content: Text("Please select some files"), actions: <Widget> [
+                      TextButton(onPressed: () { Navigator.pop(context); }, child: Text("OK"))
+                    ],);
                   });
                 }
               }
@@ -129,17 +144,7 @@ class _DecryptViewState extends State<DecryptView> {
         child: Center(
           child: Column(
             children: [
-              Container(
-                padding: EdgeInsets.all(5),
-                child: TextField(
-                  controller: pwEditController,
-                  obscureText: true,
-                  decoration: InputDecoration(
-                    border: OutlineInputBorder(),
-                    labelText: 'Dec Password',
-                  ),
-                ),
-              ),
+              AppBar(title: Text("Decryption"),),
               Expanded(
                 child: ListView.builder(
                   padding: const EdgeInsets.all(8),

@@ -44,6 +44,33 @@ class _EncryptViewState extends State<EncryptView> {
     pd!.update(value: proc);
   }
 
+  void performEnc(String password) async {
+    if(Platform.isAndroid) {
+      FlutterForegroundTask.startService(notificationTitle: "Encryption", notificationText: "Processing...");
+      await DirManager().checkFirstUri();
+    }
+
+    pd!.show(max: files!.length, msg: "Encrypting...", progressType: ProgressType.valuable);
+    final task = <Future>[];
+    int i = 0;
+    for(var file in files) {
+      task.add(encryptAndSave(i, password));
+      i++;
+    }
+
+    proc = 0;
+    await Future.wait(task);
+
+    if(Platform.isAndroid) {
+      FilePicker.platform.clearTemporaryFiles();
+      FlutterForegroundTask.stopService();
+    }
+
+    setState(() {
+      files.clear();
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     pd = ProgressDialog(context: context);
@@ -58,33 +85,21 @@ class _EncryptViewState extends State<EncryptView> {
                   child: Icon(Icons.lock_outline),
                   onPressed: () async {
                     if(files.isNotEmpty) {
-                      if(Platform.isAndroid) {
-                        FlutterForegroundTask.startService(notificationTitle: "Encryption", notificationText: "Processing...");
-                        await DirManager().checkFirstUri();
-                      }
-
-                      pd!.show(max: files!.length, msg: "Encrypting...", progressType: ProgressType.valuable);
-                      final task = <Future>[];
-                      int i = 0;
-                      for(var file in files) {
-                        task.add(encryptAndSave(i, pwEditController.text));
-                        i++;
-                      }
-
-                      proc = 0;
-                      await Future.wait(task);
-
-                      if(Platform.isAndroid) {
-                        FilePicker.platform.clearTemporaryFiles();
-                        FlutterForegroundTask.stopService();
-                      }
-
-                      setState(() {
-                        files.clear();
+                      showDialog(context: context, barrierDismissible: false, builder: (context) {
+                        return AlertDialog(
+                          title: Text("Input password"),
+                          content: TextField(controller: pwEditController, autofocus: true, obscureText: true, decoration: InputDecoration(hintText: "Password for Encrypt"), onSubmitted: (value) {Navigator.pop(context); performEnc(pwEditController.text);},),
+                          actions: [
+                            TextButton(onPressed: () { Navigator.pop(context); pwEditController.text = ''; }, child: Text("Cancel")),
+                            TextButton(onPressed: () { Navigator.pop(context); performEnc(pwEditController.text); }, child: Text("Encrypt!"))
+                          ],
+                        );
                       });
                     } else {
-                      showDialog(context: context, builder: (context) {
-                        return AlertDialog(title: Text("Failed"), content: Text("Please select some files"));;
+                      showDialog(context: context, barrierDismissible: false, builder: (context) {
+                        return AlertDialog(title: Text("Failed"), content: Text("Please select some files"), actions: <Widget> [
+                          TextButton(onPressed: () { Navigator.pop(context); }, child: Text("OK"))
+                        ],);
                       });
                     }
                   }
@@ -122,17 +137,7 @@ class _EncryptViewState extends State<EncryptView> {
             child: Center(
                 child: Column(
                     children: [
-                      Container(
-                        padding: EdgeInsets.all(5),
-                        child: TextField(
-                          controller: pwEditController,
-                          obscureText: true,
-                          decoration: InputDecoration(
-                            border: OutlineInputBorder(),
-                            labelText: 'Enc Password',
-                          ),
-                        ),
-                      ),
+                      AppBar(title: Text("Encryption"),),
                       Expanded(
                         child: ListView.builder(
                           padding: const EdgeInsets.all(8),
