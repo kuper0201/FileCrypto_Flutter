@@ -57,12 +57,12 @@ class _EncryptViewState extends State<EncryptView> {
               child: FloatingActionButton(
                   child: Icon(Icons.lock_outline),
                   onPressed: () async {
-                    if(Platform.isAndroid) {
-                      FlutterForegroundTask.startService(notificationTitle: "Encryption", notificationText: "Processing...");
-                      await DirManager().checkFirstUri();
-                    }
-
                     if(files.isNotEmpty) {
+                      if(Platform.isAndroid) {
+                        FlutterForegroundTask.startService(notificationTitle: "Encryption", notificationText: "Processing...");
+                        await DirManager().checkFirstUri();
+                      }
+
                       pd!.show(max: files!.length, msg: "Encrypting...", progressType: ProgressType.valuable);
                       final task = <Future>[];
                       int i = 0;
@@ -139,10 +139,28 @@ class _EncryptViewState extends State<EncryptView> {
                           itemCount: files.length,
                           itemBuilder: (BuildContext context, int index){
                             var txt = fileList[index].split("/");
-                            return Center(child: Text(txt.last, style: TextStyle(fontSize: 28),));
-                          }
+                            return InkWell(
+                              child: Card(
+                                child: ListTile(
+                                  title: Text(txt.last, style: TextStyle(fontStyle: FontStyle.italic, fontSize: 20)),
+                                  trailing: Container(
+                                    height: 50,
+                                    width: 50,
+                                    decoration: BoxDecoration(color: Colors.red),
+                                    child: Center(
+                                      child: Text('X', style: TextStyle(fontStyle: FontStyle.italic, fontSize: 20)),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              onTap: () {
+                                setState(() {
+                                  files.remove(fileList[index]);
+                                });
+                              },
+                            );
+                          }),
                         ),
-                      )
                     ]
                 )
             )
