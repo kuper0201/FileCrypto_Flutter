@@ -76,6 +76,7 @@ class _EncryptViewState extends State<EncryptView> {
 
   @override
   Widget build(BuildContext context) {
+    bool invisiblePassword = true;
     pd = ProgressDialog(context: context);
     final pwEditController = TextEditingController();
 
@@ -89,14 +90,16 @@ class _EncryptViewState extends State<EncryptView> {
                   onPressed: () async {
                     if(files.isNotEmpty) {
                       showDialog(context: context, barrierDismissible: false, builder: (context) {
-                        return AlertDialog(
-                          title: Text("Input password"),
-                          content: TextField(controller: pwEditController, autofocus: true, obscureText: true, decoration: InputDecoration(hintText: "Password for Encrypt"), onSubmitted: (value) {Navigator.pop(context); performEnc(pwEditController.text);},),
-                          actions: [
-                            TextButton(onPressed: () { Navigator.pop(context); pwEditController.text = ''; }, child: Text("Cancel")),
-                            TextButton(onPressed: () { Navigator.pop(context); performEnc(pwEditController.text); }, child: Text("Encrypt!"))
-                          ],
-                        );
+                        return StatefulBuilder(builder: (BuildContext context, StateSetter setState) {
+                          return AlertDialog(
+                            title: Text("Input password"),
+                            content: TextField(controller: pwEditController, autofocus: true, obscureText: invisiblePassword, decoration: InputDecoration(hintText: "Password for Encrypt", suffix: InkWell(child: Icon(invisiblePassword ? Icons.visibility : Icons.visibility_off), onTap: () { setState(() { invisiblePassword = !invisiblePassword; }); },)), onSubmitted: (value) {Navigator.pop(context); performEnc(pwEditController.text);},),
+                            actions: [
+                              TextButton(onPressed: () { Navigator.pop(context); pwEditController.text = ''; }, child: Text("Cancel")),
+                              TextButton(onPressed: () { Navigator.pop(context); performEnc(pwEditController.text); }, child: Text("Encrypt!"))
+                            ],
+                          );
+                        });
                       });
                     } else {
                       showDialog(context: context, barrierDismissible: false, builder: (context) {

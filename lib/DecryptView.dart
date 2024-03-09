@@ -83,6 +83,7 @@ class _DecryptViewState extends State<DecryptView> {
 
   @override
   Widget build(BuildContext context) {
+    bool invisiblePassword = true;
     pd = ProgressDialog(context: context);
     final pwEditController = TextEditingController();
 
@@ -96,14 +97,16 @@ class _DecryptViewState extends State<DecryptView> {
               onPressed: () async {
                 if(files.isNotEmpty) {
                   showDialog(context: context, barrierDismissible: false, builder: (context) {
-                    return AlertDialog(
-                      title: Text("Input password"),
-                      content: TextField(controller: pwEditController, autofocus: true, obscureText: true, decoration: InputDecoration(hintText: "Password for Decrypt"), onSubmitted: (value) {Navigator.pop(context); performDec(pwEditController.text);},),
-                      actions: [
-                        TextButton(onPressed: () { Navigator.pop(context); pwEditController.text = ''; }, child: Text("Cancel")),
-                        TextButton(onPressed: () { Navigator.pop(context); performDec(pwEditController.text); }, child: Text("Decrypt!"))
-                      ],
-                    );
+                    return StatefulBuilder(builder: (BuildContext context, StateSetter setState) {
+                      return AlertDialog(
+                        title: Text("Input password"),
+                        content: TextField(controller: pwEditController, autofocus: true, obscureText: invisiblePassword, decoration: InputDecoration(hintText: "Password for Decrypt", suffix: InkWell(child: Icon(invisiblePassword ? Icons.visibility : Icons.visibility_off), onTap: () { setState(() { invisiblePassword = !invisiblePassword; }); },)), onSubmitted: (value) {Navigator.pop(context); performDec(pwEditController.text);},),
+                        actions: [
+                          TextButton(onPressed: () { Navigator.pop(context); pwEditController.text = ''; }, child: Text("Cancel")),
+                          TextButton(onPressed: () { Navigator.pop(context); performDec(pwEditController.text); }, child: Text("Decrypt!"))
+                        ],
+                      );
+                    });
                   });
                 } else {
                   showDialog(context: context, barrierDismissible: false, builder: (context) {
