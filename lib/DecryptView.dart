@@ -63,7 +63,7 @@ class _DecryptViewState extends State<DecryptView> {
     pd!.show(max: files!.length, msg: "Decrypting...", progressType: ProgressType.valuable, backgroundColor: brMode, msgColor: msgMode, valueColor: msgMode);
     final task = <Future>[];
     int i = 0;
-    for(var file in files) {
+    for(var _ in files) {
       task.add(decryptAndSave(i, password));
       i++;
     }
@@ -131,9 +131,9 @@ class _DecryptViewState extends State<DecryptView> {
                 FilePickerResult? f = await FilePicker.platform.pickFiles(allowMultiple: true);
                 pd!.close();
                 if(f != null) {
-                  for (var fl in f.files!) {
+                  for (var fl in f.files) {
                     setState(() {
-                      files.add(fl!.path!);
+                      files.add(fl.path!);
                     });
                   }
                 }
