@@ -1,10 +1,15 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:file_crypto/HomeView.dart';
 import 'package:desktop_window/desktop_window.dart';
 
 Future<void> main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  await DesktopWindow.setWindowSize(Size(400, 600));
+  if(!Platform.isAndroid) {
+    WidgetsFlutterBinding.ensureInitialized();
+    await DesktopWindow.setWindowSize(Size(400, 600));
+  }
+
   runApp(const MyApp());
 }
 
