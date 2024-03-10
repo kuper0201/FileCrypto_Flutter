@@ -1,10 +1,6 @@
-import 'dart:ffi';
-
 import 'package:crypto/crypto.dart';
-import 'package:file_crypto/utils/DirManager.dart';
 import 'dart:typed_data';
 import 'dart:convert';
-import 'dart:io';
 import 'dart:math';
 
 import 'package:pointycastle/export.dart';

@@ -1,15 +1,6 @@
-import 'package:file_crypto/EncryptView.dart';
 import 'package:flutter/material.dart';
-import 'package:permission_handler/permission_handler.dart';
-import 'package:encrypt/encrypt.dart' as encrypt;
-import 'package:crypto/crypto.dart';
-import 'package:file_picker/file_picker.dart';
-import 'package:path_provider/path_provider.dart';
-import 'dart:io';
-import 'dart:convert';
-
-import 'EncryptView.dart';
-import 'DecryptView.dart';
+import 'package:file_crypto/EncryptView.dart';
+import 'package:file_crypto/DecryptView.dart';
 
 import 'package:flutter_foreground_task/flutter_foreground_task.dart';
 
@@ -68,12 +59,7 @@ class _HomeViewState extends State<HomeView> {
     );
   }
 
-  int _selectedIndex = 0;
-  static const TextStyle optionStyle = TextStyle(
-      fontSize: 30,
-      fontWeight: FontWeight.bold
-  );
-  
+  int _selectedIndex = 0;  
   final List<Widget> _widgetOptions = <Widget>[
     EncryptView(),
     DecryptView()
