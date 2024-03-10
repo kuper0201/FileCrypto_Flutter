@@ -159,14 +159,7 @@ class _EncryptViewState extends State<EncryptView> {
                               child: Card(
                                 child: ListTile(
                                   title: Text(txt.last, style: TextStyle(fontStyle: FontStyle.italic, fontSize: 20)),
-                                  trailing: Container(
-                                    height: 50,
-                                    width: 50,
-                                    decoration: BoxDecoration(color: Colors.red),
-                                    child: Center(
-                                      child: Text('X', style: TextStyle(fontStyle: FontStyle.italic, fontSize: 20)),
-                                    ),
-                                  ),
+                                  trailing: Icon(Icons.close, size: 40, color: Colors.red,),
                                 ),
                               ),
                               onTap: () {
