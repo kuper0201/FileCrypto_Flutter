@@ -1,16 +1,25 @@
-# file_crypto
+# What is File Crypto?
 
-A new Flutter project.
+A cross platform tool for encrypt/decrypt files using ChaCha20.
 
-## Getting Started
+## Usage
 
-This project is a starting point for a Flutter application.
+### Encryption
 
-A few resources to get you started if this is your first Flutter project:
+1. Add files to encrypt.
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+2. Click "Lock" button.
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+3. Input password you want.
+
+4. It's done. The encrypted files are locate your "Documents" directory.
+
+### Decryption
+
+1. Add files to decrypt.
+
+2. Click "Unlock" button.
+
+3. Input password what you set for encryption.
+
+4. It's done. The decrypted files are locate your "Documents" directory.
