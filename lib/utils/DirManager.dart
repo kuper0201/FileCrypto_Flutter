@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 import 'dart:typed_data';
+import 'package:path/path.dart' as Path;
 import 'package:path_provider/path_provider.dart';
 import 'package:shared_storage/shared_storage.dart';
 
@@ -34,8 +35,8 @@ class DirManager {
     } else {
       await createDir();
       final Directory dirPath = await getApplicationDocumentsDirectory();
-      Directory newDir = new Directory(dirPath.path + "/FileCrypto/");
-      file = File(newDir.path + "/" + name);
+      Directory newDir = Directory(Path.join(dirPath.path, "FileCrypto"));
+      file = File(Path.join(newDir.path, name));
       if (!await file!.exists()) {
         await file!.create();
       }
@@ -69,7 +70,7 @@ class DirManager {
 
   Future<void> createDir() async {
     final Directory dirPath = await getApplicationDocumentsDirectory();
-    Directory newDir = new Directory(dirPath.path + "/FileCrypto/");
+    Directory newDir = Directory(Path.join(dirPath.path, "FileCrypto"));
     if (!await newDir.exists()) {
       await newDir.create();
     }

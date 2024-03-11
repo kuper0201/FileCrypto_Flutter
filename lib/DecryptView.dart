@@ -40,7 +40,7 @@ class _DecryptViewState extends State<DecryptView> {
     };
 
     var directoryManager = DirManager();
-    var decryptFileName = fileList[idx].split("/").last.replaceAll(".chacha", "");
+    var decryptFileName = fileList[idx].split(Platform.pathSeparator).last.replaceAll(".chacha", "");
     await directoryManager.createBlankFile(decryptFileName, Uint8List(0));
 
     Stream<List<int>> filtStream = await f.openRead(8);

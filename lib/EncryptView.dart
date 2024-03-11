@@ -33,7 +33,7 @@ class _EncryptViewState extends State<EncryptView> {
     };
 
     var directoryManager = DirManager();
-    await directoryManager.createBlankFile(fileList[idx].split("/").last +".chacha", iv);
+    await directoryManager.createBlankFile(fileList[idx].split(Platform.pathSeparator).last +".chacha", iv);
 
     Stream<List<int>> filtStream = await f.openRead();
     Stream tr = filtStream.map(mapper);
