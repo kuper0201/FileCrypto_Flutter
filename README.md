@@ -7,7 +7,7 @@
 ## Features
 
 - Encrypt/Decrypt files using ChaCha20.
-- Crossplatform(tested with Linux, macOS, Android, Windows10)
+- Supporting cross-platform(tested with Linux, macOS, Android, Windows10)
 
 ## Usage
 
