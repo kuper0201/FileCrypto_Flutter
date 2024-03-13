@@ -9,6 +9,12 @@
 - Encrypt/Decrypt files using ChaCha20.
 - Supporting cross-platform(tested with Linux, macOS, Android, Windows10)
 
+## Install
+
+- Android
+
+<a href='https://play.google.com/store/apps/details?id=com.intejor.file_crypto&pcampaignid=pcampaignidMKT-Other-global-all-co-prtnr-py-PartBadge-Mar2515-1'><img width="250" alt='Get it on Google Play' src='https://play.google.com/intl/ko/badges/static/images/badges/en_badge_web_generic.png'/></a>
+
 ## Usage
 
 ### Encryption
