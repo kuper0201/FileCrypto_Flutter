@@ -11,9 +11,13 @@
 
 ## Install
 
+- Windows, MacOS, Linux
+
+  - <a href="https://github.com/kuper0201/FileCrypto_Flutter/releases/latest">Github Release</a>
+
 - Android
 
-<a href='https://play.google.com/store/apps/details?id=com.intejor.file_crypto&pcampaignid=pcampaignidMKT-Other-global-all-co-prtnr-py-PartBadge-Mar2515-1'><img width="250" alt='Get it on Google Play' src='https://play.google.com/intl/ko/badges/static/images/badges/en_badge_web_generic.png'/></a>
+  <a href='https://play.google.com/store/apps/details?id=com.intejor.file_crypto&pcampaignid=pcampaignidMKT-Other-global-all-co-prtnr-py-PartBadge-Mar2515-1'><img width="250" alt='Get it on Google Play' src='https://play.google.com/intl/ko/badges/static/images/badges/en_badge_web_generic.png'/></a>
 
 ## Usage
 
