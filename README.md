@@ -11,7 +11,7 @@
 
 ## Install
 
-- Windows, MacOS, Linux
+- Windows, macOS, Linux
 
   - <a href="https://github.com/kuper0201/FileCrypto_Flutter/releases/latest">Github Release</a>
 
