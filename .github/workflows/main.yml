@@ -26,7 +26,7 @@ jobs:
         run: |
           flutter pub get
           
-      - name: Build Flutter web
+      - name: Build Linux App
         run: |
           flutter build linux --release
-          mv ./build/linux .
+          zip file_crypto_linux.zip ./build/linux
