@@ -24,13 +24,9 @@ jobs:
       - name: Build Windows App
         run: |
           flutter build windows --release
-
-      - name: Check
-        run: |
-          dir build/windows/runner/
         
       - name: Upload Windows Artifacts
         uses: actions/upload-artifact@v3
         with:
           name: build_windows
-          path: ./build/windows/runner/Release/file_crypto
+          path: build\windows\x64\runner\Release
