@@ -1,0 +1,31 @@
+name: linux_build
+on:
+  push:
+    branches: [ main ]
+    
+jobs:
+  build:
+    name: Test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v2
+      
+      - name: Install Flutter SDK
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.16.9'
+          channel: 'stable'
+          
+      - name: Import Flutter Package
+        run: |
+          flutter pub get
+          
+      - name: Test Flutter
+        run: |
+          flutter test
+          
+      - name: Build Flutter web
+        run: |
+          flutter build linux --release
+          mv ./build/linux .
