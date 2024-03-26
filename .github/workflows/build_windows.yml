@@ -28,5 +28,6 @@ jobs:
       - name: Upload Windows Artifacts
         uses: actions/upload-artifact@v3
         with:
-          name: build_windows
+          type: 'zip'
+          name: file_crypto_win_x64.zip
           path: build\windows\x64\runner\Release
