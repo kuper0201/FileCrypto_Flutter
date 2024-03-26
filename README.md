@@ -34,3 +34,8 @@
 2. Click "Unlock" button.
 3. Input password what you set for encryption.
 4. It's done. The decrypted files are locate your "Documents" directory.
+
+### Change Log
+
+2024.03.26.
+  Bug Fix: Now, generate new file when file names are same.
