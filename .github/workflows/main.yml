@@ -29,4 +29,7 @@ jobs:
       - name: Build Linux App
         run: |
           flutter build linux --release
-          zip file_crypto_linux.zip ./build/linux
+        uses: actions/upload-artifact@v3
+        with:
+          name: build_linux
+          path: ./build/linux
