@@ -29,4 +29,4 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: build_windows
-          path: ./build/windows/x64/release/bundle
+          path: ./build/windows/x64/runner/file_crypto
