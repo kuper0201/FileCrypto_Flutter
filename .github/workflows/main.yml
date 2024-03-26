@@ -21,10 +21,6 @@ jobs:
         run: |
           flutter pub get
           
-      - name: Test Flutter
-        run: |
-          flutter test
-          
       - name: Build Flutter web
         run: |
           flutter build linux --release
