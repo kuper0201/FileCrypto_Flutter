@@ -24,10 +24,13 @@ jobs:
       - name: Build macOS App
         run: |
           flutter build macos --release
-          
-      - name: Upload macOS Artifacts
+
+      - name: Create the DMG file
+        run: |
+          hdiutil create -format UDZO -srcfolder build/macos/Build/Products/Release/file_crypto.app file_crypto.dmg
+
+      - name: Deploy
         uses: actions/upload-artifact@v3
         with:
-          type: 'zip'
-          name: file_crypto_macos.zip
-          path: ./build/macos/Build/Products/Release
+          name: file_crypto_macos
+          path: file_crypto.dmg
