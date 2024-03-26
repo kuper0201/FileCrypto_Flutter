@@ -1,0 +1,36 @@
+name: macos_build
+on:
+  push:
+    branches: [ main ]
+    
+jobs:
+  build:
+    name: macOS Build
+    runs-on: macos-latest
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v2
+      
+      - name: Install Flutter SDK
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.16.9'
+          channel: 'stable'
+          
+      - name: Import Flutter Package
+        run: |
+          flutter pub get
+          
+      - name: Build macOS App
+        run: |
+          flutter build macos --release
+
+      - name: Create the DMG file
+        run: |
+          hdiutil create -format UDZO -srcfolder build/macos/Build/Products/Release/file_crypto.app file_crypto.dmg
+
+      - name: Deploy
+        uses: actions/upload-artifact@v3
+        with:
+          name: file_crypto_macos
+          path: file_crypto.dmg
