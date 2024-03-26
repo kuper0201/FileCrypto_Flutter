@@ -25,8 +25,8 @@ jobs:
         run: |
           flutter build macos --release
           
-      - name: Upload Linux Artifacts
+      - name: Upload macOS Artifacts
         uses: actions/upload-artifact@v3
         with:
           name: build_macos
-          path: ./build/macos/Build/Products/Release/file_crypto.app
+          path: ./build/macos/Build/Products/Release
