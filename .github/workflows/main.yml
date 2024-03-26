@@ -29,6 +29,8 @@ jobs:
       - name: Build Linux App
         run: |
           flutter build linux --release
+          
+      - name: Upload Linux Artifacts
         uses: actions/upload-artifact@v3
         with:
           name: build_linux
