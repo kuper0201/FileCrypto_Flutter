@@ -36,11 +36,13 @@ class DirManager {
       await createDir();
       final Directory dirPath = await getApplicationDocumentsDirectory();
       Directory newDir = Directory(Path.join(dirPath.path, "FileCrypto"));
-      file = File(Path.join(newDir.path, name));
-      if (!await file!.exists()) {
-        await file!.create();
-      }
+      
+      do {
+        file = File(Path.join(newDir.path, name));
+        name = "new_" + name;
+      } while(await file!.exists());
 
+      await file!.create();
       await file!.writeAsBytes(iv, mode: FileMode.append);
     }
   }
