@@ -4,6 +4,23 @@
 
 > A cross platform tool for encrypt/decrypt files using ChaCha20.
 
+## Preview
+
+<div align="center">
+  <table>
+    <tr align="center">
+      <th>Encryption</th>
+      <th>Decryption</th>
+      <th>Input Password</th>
+    </tr>
+    <tr align="center">
+      <td><img src="ScreenShot/encrypt.jpg" width="250"/></td>
+      <td><img src="ScreenShot/decrypt.jpg" width="250"/></td>
+      <td><img src="ScreenShot/password.jpg" width="250"/></td>
+    </tr>
+  </table>
+</div>
+
 ## Features
 
 - Encrypt/Decrypt files using ChaCha20.
