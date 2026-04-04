@@ -18,8 +18,8 @@ class DirManager {
     }
 
     bool? isDirExists = await exists(uris!.first.uri);
-    if(isDirExists == null || !isDirExists!) {
-      for(var uri in uris) {
+    if (isDirExists == null || !isDirExists!) {
+      for (var uri in uris!) {
         await releasePersistableUriPermission(uri.uri);
       }
 
@@ -29,18 +29,19 @@ class DirManager {
   }
 
   Future<void> createBlankFile(String name, Uint8List iv) async {
-    if(Platform.isAndroid) {
+    if (Platform.isAndroid) {
       Uri uri = await getURI();
-      df = await createFileAsBytes(uri, mimeType: "raw/content", displayName: name, bytes: iv);
+      df = await createFileAsBytes(uri,
+          mimeType: "raw/content", displayName: name, bytes: iv);
     } else {
       await createDir();
       final Directory dirPath = await getApplicationDocumentsDirectory();
       Directory newDir = Directory(Path.join(dirPath.path, "FileCrypto"));
-      
+
       do {
         file = File(Path.join(newDir.path, name));
         name = "new_" + name;
-      } while(await file!.exists());
+      } while (await file!.exists());
 
       await file!.create();
       await file!.writeAsBytes(iv, mode: FileMode.append);
@@ -48,13 +49,18 @@ class DirManager {
   }
 
   Future<void> writeFileWithStream(Stream stream) async {
-    if(Platform.isAndroid) {
+    if (Platform.isAndroid) {
       await for (var item in stream) {
-        await writeToFileAsBytes(df!.uri, bytes: Uint8List.fromList(item), mode: FileMode.append);
+        await writeToFileAsBytes(
+          df!.uri,
+          bytes: Uint8List.fromList(item),
+          mode: FileMode.append,
+        );
       }
     } else {
-      await for(var item in stream) {
-        await file!.writeAsBytes(Uint8List.fromList(item), mode: FileMode.append);
+      await for (var item in stream) {
+        await file!
+            .writeAsBytes(Uint8List.fromList(item), mode: FileMode.append);
       }
     }
   }

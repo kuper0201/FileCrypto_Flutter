@@ -1,53 +1,61 @@
-import 'package:crypto/crypto.dart';
+import 'dart:math';
 import 'dart:typed_data';
 import 'dart:convert';
-import 'dart:math';
 
+import 'package:crypto/crypto.dart';
 import 'package:pointycastle/export.dart';
 
 class CryptUtil {
-  late ChaCha20Engine chacha20;
-  late String password;
-  late Uint8List iv;
+  static const int nonceSize = 12;
+  static const int tagSize = 16;
 
-  CryptUtil.Encrypter(this.password) {
-    var key = KeyParameter(Uint8List.fromList(saltPassword(password).codeUnits));
-    iv = Uint8List.fromList(getRandString(8).codeUnits);
-    var params = ParametersWithIV(key, iv);
-    chacha20 = ChaCha20Engine();
-    chacha20.init(true, params);
+  late Uint8List nonce;
+  late ChaCha20Poly1305 _cipher;
+  late KeyParameter _keyParam;
+
+  CryptUtil.Encrypter(String password) {
+    _keyParam = KeyParameter(_deriveKey(password));
+    nonce = _generateNonce();
+    _cipher = ChaCha20Poly1305(ChaCha7539Engine(), Poly1305());
+    _cipher.init(true, AEADParameters(_keyParam, 128, nonce, Uint8List(0)));
   }
 
-  CryptUtil.Decrypter(this.password, this.iv) {
-    var key = KeyParameter(Uint8List.fromList(saltPassword(password).codeUnits));
-    var params = ParametersWithIV(key, iv);
-    chacha20 = ChaCha20Engine();
-    chacha20.init(false, params);
+  CryptUtil.Decrypter(String password, this.nonce) {
+    _keyParam = KeyParameter(_deriveKey(password));
+    _cipher = ChaCha20Poly1305(ChaCha7539Engine(), Poly1305());
+    _cipher.init(false, AEADParameters(_keyParam, 128, nonce, Uint8List(0)));
   }
 
-  Uint8List getIV() {
-    return this.iv;
+  Uint8List getIV() => nonce;
+
+  Uint8List _generateNonce() {
+    final random = Random.secure();
+    final n = Uint8List(nonceSize);
+    for (int i = 0; i < nonceSize; i++) {
+      n[i] = random.nextInt(256);
+    }
+    return n;
   }
 
-  String getRandString(int len) {
-    var random = Random.secure();
-    var values = List<int>.generate(len, (i) =>  random.nextInt(255));
-    return base64UrlEncode(values).substring(0, len);
+  Uint8List _deriveKey(String password) {
+    final bytes = utf8.encode(password);
+    final hash = sha256.convert(bytes);
+    return Uint8List.fromList(hash.bytes.sublist(0, 32));
   }
 
-  String saltPassword(String password) {
-    var passwordString = utf8.encode(password);// + uniqueKey);
-    var hash = sha256.convert(passwordString);
-    var key = hash.toString().substring(0, 32);
-
-    return key;
+  Uint8List processEnc(Uint8List data) {
+    final outSize = _cipher.getOutputSize(data.length);
+    final output = Uint8List(outSize);
+    int len = _cipher.processBytes(data, 0, data.length, output, 0);
+    len += _cipher.doFinal(output, len);
+    return Uint8List.sublistView(output, 0, len);
   }
 
-  List<int> processDec(Uint8List data) {
-    return List<int>.from(chacha20.process(data));
-  }
-
-  List<int> processEnc(Uint8List data) {
-    return List<int>.from(chacha20.process(data));
+  Uint8List processDec(Uint8List data) {
+    final outSize = _cipher.getOutputSize(data.length);
+    final output = Uint8List(outSize);
+    int len = _cipher.processBytes(data, 0, data.length, output, 0);
+    len += _cipher.doFinal(output, len);
+    return Uint8List.sublistView(output, 0, len);
   }
 }
