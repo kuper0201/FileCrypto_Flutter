@@ -9,7 +9,7 @@ jobs:
     runs-on: windows-latest
     steps:          
       - name: Checkout source code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
       
       - name: Install Flutter SDK
         uses: subosito/flutter-action@v2
@@ -26,8 +26,7 @@ jobs:
           flutter build windows --release
         
       - name: Upload Windows Artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
-          type: 'zip'
-          name: file_crypto_win_x64.zip
+          name: file_crypto_win_x64
           path: build\windows\x64\runner\Release
